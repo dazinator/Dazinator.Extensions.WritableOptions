@@ -11,9 +11,9 @@ before_build:
 build:
   verbosity: detailed
 build_script:
-- cmd: dotnet restore ./src/Dazinator.Extensions.WriteableOptions.sln --disable-parallel
-- cmd: dotnet build ./src/Dazinator.Extensions.WriteableOptions.sln -c Release --disable-parallel
-- cmd: dotnet pack ./src/Dazinator.Extensions.WriteableOptions.sln -c Release --output %APPVEYOR_BUILD_FOLDER%/artifacts/
+- cmd: dotnet restore ./src/Dazinator.Extensions.WritableOptions.sln --disable-parallel
+- cmd: dotnet build ./src/Dazinator.Extensions.WritableOptions.sln -c Release --disable-parallel
+- cmd: dotnet pack ./src/Dazinator.Extensions.WritableOptions.sln -c Release --output %APPVEYOR_BUILD_FOLDER%/artifacts/
 artifacts:
 - path: artifacts/*
 deploy:
