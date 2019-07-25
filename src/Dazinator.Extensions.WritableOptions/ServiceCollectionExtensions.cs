@@ -1,8 +1,8 @@
-﻿using Dazinator.Extensions.WriteableOptions;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System;
+using Dazinator.Extensions.WritableOptions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
