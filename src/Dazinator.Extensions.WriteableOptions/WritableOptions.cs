@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 
-namespace Dazinator.Extensions.WriteableOptions
+namespace Dazinator.Extensions.WritableOptions
 {
 
     public class WritableOptions<T> : IWritableOptions<T> where T : class, new()

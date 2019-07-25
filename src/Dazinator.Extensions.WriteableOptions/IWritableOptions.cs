@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using System;
 
-namespace Dazinator.Extensions.WriteableOptions
+namespace Dazinator.Extensions.WritableOptions
 {
     public interface IWritableOptions<out T> : IOptionsSnapshot<T> where T : class, new()
     {
