@@ -11,7 +11,6 @@ namespace Microsoft.Extensions.DependencyInjection
         public static void ConfigureWritable<T>(
             this IServiceCollection services,
             IConfigurationSection section,
-            IConfigurationRoot configurationRoot,
             IFileProvider fileProvider,
             Action<string, string> writeFile,
             string file = "appsettings.json") where T : class, new()
@@ -20,7 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IWritableOptions<T>>(provider =>
             {
                 var options = provider.GetService<IOptionsMonitor<T>>();
-                return new WritableOptions<T>(fileProvider, writeFile, options, configurationRoot, section.Key, file);
+                return new WritableOptions<T>(fileProvider, writeFile, options, section.Key, file);
             });
         }
     }

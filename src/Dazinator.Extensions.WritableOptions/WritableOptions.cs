@@ -13,7 +13,6 @@ namespace Dazinator.Extensions.WritableOptions
     {
         private readonly IFileProvider _fileProvider;
         private readonly IOptionsMonitor<T> _options;
-      //  private readonly IConfigurationRoot _configuration;
         private readonly string _section;
         private readonly string _file;
 
@@ -21,7 +20,6 @@ namespace Dazinator.Extensions.WritableOptions
             IFileProvider fileProvider,
             Action<string, string> writeFile,
             IOptionsMonitor<T> options,
-            IConfigurationRoot configuration,
             string section,
             string file)
         {
