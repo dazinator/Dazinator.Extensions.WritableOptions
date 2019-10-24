@@ -3,8 +3,11 @@ using System.Buffers;
 using System.IO;
 using System.Text.Json;
 
-namespace Dazinator.Extensions.WritableOptions.Tests
+namespace System.Text.Json
 {
+    /// <summary>
+    /// Code taken with permission from https://stackoverflow.com/questions/56835040/net-core-3-0-jsonserializer-populate-existing-object
+    /// </summary>
     public ref struct Utf8JsonStreamReader
     {
         private readonly Stream _stream;
@@ -179,6 +182,7 @@ namespace Dazinator.Extensions.WritableOptions.Tests
         public bool TryGetUInt16(out ushort value) => _jsonReader.TryGetUInt16(out value);
         public bool TryGetUInt32(out uint value) => _jsonReader.TryGetUInt32(out value);
         public bool TryGetUInt64(out ulong value) => _jsonReader.TryGetUInt64(out value);
+        public void Skip() => _jsonReader.Skip();
 
         private sealed class SequenceSegment : ReadOnlySequenceSegment<byte>, IDisposable
         {

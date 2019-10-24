@@ -1,6 +1,3 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using Xunit;
@@ -25,7 +22,7 @@ namespace Dazinator.Extensions.WritableOptions.Tests
             var reader = new Utf8JsonReader(data, isFinalBlock: true, state: default);
             Assert.True(reader.NavigateToSection(sectionPath));
 
-           
+
 
             //var services = new ServiceCollection();
             //services.AddOptions();
@@ -38,10 +35,11 @@ namespace Dazinator.Extensions.WritableOptions.Tests
 
             //var section = config.GetSection(sectionPath);
 
-          //  services.ConfigureWritable<TestOptions>(section,)
-    
+            //  services.ConfigureWritable<TestOptions>(section,)
+
 
 
         }
+        
     }
 }

@@ -1,100 +1,62 @@
-﻿using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using System;
-using System.Buffers;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Dazinator.Extensions.WritableOptions.Tests
 {
     public partial class Utf8JsonReaderExtensionsTests
     {
+
+        public interface IJsonFileStreamProvider
+        {
+            Stream OpenReadStream();
+            Stream OpenWriteStream();
+
+        }
+
         public class JsonFileOptionsStore<TOptions>
             where TOptions : class, new()
         {
             private IOptionsSnapshot<TOptions> _options;
-            private readonly IFileProvider _fileProvider;
-            private readonly string _fileSubpath;
+            private readonly IJsonFileStreamProvider _jsonFileStreamProvider;
             private readonly string _sectionName;
+            private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
 
-            public JsonFileOptionsStore(IOptionsSnapshot<TOptions> options, IFileProvider fileProvider, string fileSubpath, string sectionName)
+            public JsonFileOptionsStore(
+                IOptionsSnapshot<TOptions> options,
+                IJsonFileStreamProvider jsonFileStreamProvider,
+                string sectionName)
             {
                 _options = options;
-                _fileProvider = fileProvider;
-                _fileSubpath = fileSubpath;
+                _jsonFileStreamProvider = jsonFileStreamProvider;
                 _sectionName = sectionName;
             }
 
-            public async Task Update(Action<TOptions> makeChanges)
+            public void Update(Action<TOptions> makeChanges, JsonSerializerOptions serialiserOptions = null)
             {
-
-                var fileInfo = _fileProvider.GetFileInfo(_fileSubpath);
-                if (fileInfo.Exists)
+                var reader = new Utf8JsonStreamReader(_jsonFileStreamProvider.OpenReadStream(), 1024);
+                using (var memStream = new MemoryStream())
                 {
-                    using var readStream = fileInfo.CreateReadStream();
-                    using var doc = await JsonDocument.ParseAsync(readStream);
-
-                    var writer = new Utf8JsonWriter(GetWriteStream());
-
-                    JsonElement currentElement = doc.RootElement;
-                    var sectionSegments = _sectionName?.Split(':', StringSplitOptions.RemoveEmptyEntries);
-                    int navigatedDepth = 0;
-
-                    foreach (var item in currentElement.EnumerateObject())
+                    if (serialiserOptions == null)
                     {
-                        var lookingForSegment = sectionSegments.Length > 0 ? sectionSegments[navigatedDepth] : "";
-                        if (!item.NameEquals(lookingForSegment))
-                        {
-                            //foreach (var item in currentElement.EnumerateObject())
-                            //{
-                            //}
-                            //    element = currentElement;
-                            //return false;
-                        }
-                        item.WriteTo(writer);
-                    }
-                    foreach (var item in sectionSegments)
-                    {
-
+                        serialiserOptions = _defaultSerializerOptions;
                     }
 
-                    // write all existing content to new write stream )overwriting any existing file content
-                    // but when we get to our section, we need to write the serialized object instead.
-                    if (doc.TryGetPropertyAtPath(_sectionName, out JsonElement element))
-                    {
+                    makeChanges(_options.Value);
 
-                        JsonSerializer.Deserialize<TestOptions>(element.GetRawText());
+                    using (var writer = new Utf8JsonWriter(memStream))
+                    {
+                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, _options.Value, serialiserOptions);
                     }
 
-                   // doc.RootElement.EnumerateObject()
-                    // var content = fileInfo.ReadAllContent();
-                    //var reader = new Utf8JsonStreamReader(readStream, 32 * 1024);
-
-
-
+                    memStream.Position = 0;
+                    using (var writeStream = _jsonFileStreamProvider.OpenWriteStream())
+                    {
+                        memStream.CopyTo(writeStream);
+                    }
                 }
-
-
-                //   Utf8JsonWriter writer = new Utf8JsonWriter()
-                //   var file = fileProvider.
-                //            using var releasesResponse = await JsonDocument.ParseAsync(await httpClient.GetStreamAsync(
-                //"https://raw.githubusercontent.com/dotnet/core/master/release-notes/releases-index.json"));
-
-
-                // reader.
-
-                // System.Text.Json.JsonDocument.
-
             }
-
-            private Stream GetWriteStream()
-            {
-                throw new NotImplementedException();
-            }
-
-            private static char[] _sectionDelimiterChars = new char[] { ':' };
-
         }
     }
 }
