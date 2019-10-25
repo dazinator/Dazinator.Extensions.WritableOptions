@@ -2,7 +2,7 @@ skip_tags: true
 image: Visual Studio 2019 Preview
 
 install:
-  - cmd: choco install gitversion.portable --version 5.0.1 -y
+  - cmd: choco install gitversion.portable --version 4.0.0 -y
 
 before_build:
   - ps: gitversion /l console /output buildserver
