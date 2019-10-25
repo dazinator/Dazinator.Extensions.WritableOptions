@@ -6,11 +6,12 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{395E4618-A9A2-4663-B9BA-BBF705B3A004}"
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dazinator.Extensions.WritableOptions", "Dazinator.Extensions.WritableOptions\Dazinator.Extensions.WritableOptions.csproj", "{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dazinator.Extensions.Options.Updatable", "Dazinator.Extensions.Options.Updatable\Dazinator.Extensions.Options.Updatable.csproj", "{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dazinator.Extensions.WritableOptions.Tests", "Dazinator.Extensions.WritableOptions.Tests\Dazinator.Extensions.WritableOptions.Tests.csproj", "{15C5D2C4-A3DD-49F1-A41B-4249FC1DE03F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dazinator.Extensions.Options.Updatable.Tests", "Dazinator.Extensions.Options.Updatable.Tests\Dazinator.Extensions.Options.Updatable.Tests.csproj", "{15C5D2C4-A3DD-49F1-A41B-4249FC1DE03F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
