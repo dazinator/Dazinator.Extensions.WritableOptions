@@ -3,6 +3,7 @@ using System.IO;
 
 namespace Dazinator.Extensions.WritableOptions
 {
+
     public class DelegateJsonStreamProvider<TOptions> : IJsonStreamProvider<TOptions>
          where TOptions : class, new()
     {
