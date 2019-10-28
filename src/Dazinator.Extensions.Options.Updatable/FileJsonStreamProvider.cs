@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-namespace Dazinator.Extensions.WritableOptions
+namespace Dazinator.Extensions.Options.Updatable
 {
-    public class FileJsonStreamProvider<TOptions> : Dazinator.Extensions.WritableOptions.IJsonStreamProvider<TOptions>
+    public class FileJsonStreamProvider<TOptions> : IJsonStreamProvider<TOptions>
        where TOptions : class, new()
     {
         private readonly string _baseDirectory;

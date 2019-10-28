@@ -2,7 +2,7 @@ using System.Text;
 using System.Text.Json;
 using Xunit;
 
-namespace Dazinator.Extensions.WritableOptions.Tests
+namespace Dazinator.Extensions.Options.Updatable.Tests
 {
 
     public partial class Utf8JsonReaderExtensionsTests

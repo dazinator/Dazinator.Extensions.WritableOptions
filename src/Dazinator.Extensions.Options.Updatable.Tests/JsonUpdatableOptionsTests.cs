@@ -4,13 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json;
 using Xunit;
 using Dazinator.AspNet.Extensions.FileProviders;
 using Dazinator.AspNet.Extensions.FileProviders.FileInfo;
 using Microsoft.Extensions.Options;
 
-namespace Dazinator.Extensions.WritableOptions.Tests
+namespace Dazinator.Extensions.Options.Updatable.Tests
 {
 
     public class JsonUpdatableOptionsTests

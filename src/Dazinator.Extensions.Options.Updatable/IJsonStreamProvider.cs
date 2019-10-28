@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Dazinator.Extensions.WritableOptions
+namespace Dazinator.Extensions.Options.Updatable
 {
     public interface IJsonStreamProvider<TOptions>
          where TOptions : class, new()

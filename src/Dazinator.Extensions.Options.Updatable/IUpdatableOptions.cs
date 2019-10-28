@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Dazinator.Extensions.WritableOptions
+namespace Dazinator.Extensions.Options.Updatable
 {
     public interface IUpdatableOptions<TOptions>
     {

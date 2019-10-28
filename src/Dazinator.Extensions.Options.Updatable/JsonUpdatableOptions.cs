@@ -3,7 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 
-namespace Dazinator.Extensions.WritableOptions
+namespace Dazinator.Extensions.Options.Updatable
 {
     public class JsonUpdatableOptions<TOptions> : IUpdatableOptions<TOptions>
         where TOptions : class, new()

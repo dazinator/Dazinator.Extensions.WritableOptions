@@ -18,12 +18,21 @@ Allows you to Update an `IOptions<T>` provided value at runtime. Currently only 
 ```
 
      services.AddOptions();
-	 services.ConfigureJsonUpdatableOptions<TestOptions>(Configuration, "foo:bar", () => File.OpenRead("mysettings.json"), () => File.OpenWrite("mysettings.json"), leaveOpen: false);
+	 services.ConfigureJsonUpdatableOptions<TestOptions>("foo:bar", () => File.OpenRead("mysettings.json"), () => File.OpenWrite("mysettings.json"), leaveOpen: false);
 	
 
 ```
 
-You can now use and update options like so:
+The overload used above lets you specify your own delegate for providing the Read and Write Streams for reading and writing the JSON file.
+However if you just want to use System.IO you can use:
+
+```
+     services.ConfigureJsonUpdatableOptions<TestOptions>("foo:bar", new FileJsonStreamProvider<TestOptions>("C:/SettingsFolder", "/mysettings.json"));
+	 
+```
+
+You can now use and update options by injecting `IUpdatableOptions<TestOptions>` like so:
+
 
 ```
 public class Foo

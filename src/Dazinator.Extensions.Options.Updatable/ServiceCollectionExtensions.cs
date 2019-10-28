@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
-using Dazinator.Extensions.WritableOptions;
+using Dazinator.Extensions.Options.Updatable;
 using System.IO;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -14,6 +14,13 @@ namespace Microsoft.Extensions.DependencyInjection
             var fullSectionName = $"{configSection.Path}:{configSection.Key}".TrimStart(':');
             services.Configure<TOptions>(configSection);
             return AddJsonUpdatableOptions(services, jsonStreamProvider, leaveOpen, fullSectionName);
+        }
+
+        public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, IConfiguration configSection, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen = false)
+where TOptions : class, new()
+        {
+            services.Configure<TOptions>(configSection);
+            return AddJsonUpdatableOptions(services, jsonStreamProvider, leaveOpen, string.Empty);
         }
 
         private static IServiceCollection AddJsonUpdatableOptions<TOptions>(IServiceCollection services, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen, string fullSectionName) where TOptions : class, new()
@@ -31,7 +38,7 @@ namespace Microsoft.Extensions.DependencyInjection
             var streamProvider = new DelegateJsonStreamProvider<TOptions>(getReadStream, getWriteStream);
             return services.ConfigureJsonUpdatableOptions(configSection, streamProvider, leaveOpen);
         }
-
+        
         public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, Func<Stream> getReadStream, Func<Stream> getWriteStream, bool leaveOpen = false)
 where TOptions : class, new()
         {
@@ -61,10 +68,10 @@ where TOptions : class, new()
              where TOptions : class, new()
         {
             var streamProvider = new DelegateJsonStreamProvider<TOptions>(getReadStream, getWriteStream);
-            return services.ConfigureJsonUpdatableOptions(sectionPath, streamProvider, leaveOpen);
+            return services.AddJsonUpdatableOptions(sectionPath, streamProvider, leaveOpen);
         }
 
-        public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, string sectionPath, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen = false)
+        public static IServiceCollection AddJsonUpdatableOptions<TOptions>(this IServiceCollection services, string sectionPath, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen = false)
             where TOptions : class, new()
         {
             return AddJsonUpdatableOptions(services, jsonStreamProvider, leaveOpen, sectionPath);

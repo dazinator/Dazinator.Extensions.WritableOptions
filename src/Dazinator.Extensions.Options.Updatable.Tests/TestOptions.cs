@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Dazinator.Extensions.WritableOptions.Tests
+﻿namespace Dazinator.Extensions.Options.Updatable.Tests
 {
     public class TestOptions
     {

@@ -1,13 +1,9 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using Xunit;
 
-namespace Dazinator.Extensions.WritableOptions.Tests
+namespace Dazinator.Extensions.Options.Updatable.Tests
 {
 
     public class Utf8JsonWriterExtensionsTests

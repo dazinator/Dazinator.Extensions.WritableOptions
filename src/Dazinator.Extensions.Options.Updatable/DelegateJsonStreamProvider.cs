@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Dazinator.Extensions.Options.Updatable;
+using System;
 using System.IO;
 
-namespace Dazinator.Extensions.WritableOptions
+namespace Dazinator.Extensions.Options.Updatable
 {
 
     public class DelegateJsonStreamProvider<TOptions> : IJsonStreamProvider<TOptions>
