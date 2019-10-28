@@ -14,6 +14,8 @@ namespace Dazinator.Extensions.WritableOptions
         private readonly bool _leaveOpen;
         private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
 
+        public TOptions Value => _options.Value;
+
         public JsonUpdatableOptions(
             IOptionsSnapshot<TOptions> options,
             IJsonStreamProvider<TOptions> jsonFileStreamProvider,
@@ -55,6 +57,11 @@ namespace Dazinator.Extensions.WritableOptions
                 }
 
             }
+        }
+
+        public TOptions Get(string name)
+        {
+            return _options.Get(name);
         }
     }
 }
