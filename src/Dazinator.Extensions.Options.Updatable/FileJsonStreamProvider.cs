@@ -31,8 +31,7 @@ namespace Dazinator.Extensions.Options.Updatable
 
         public Stream OpenWriteStream()
         {
-            var filePath = System.IO.Path.Combine(_baseDirectory, _filePath);
-            return File.OpenWrite(filePath);
+            return File.OpenWrite(_fullFilePath);
         }
     }
 }
