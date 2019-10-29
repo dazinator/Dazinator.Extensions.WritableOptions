@@ -30,7 +30,7 @@ namespace Dazinator.Extensions.Options.Updatable
 
         public void Update(Action<TOptions> makeChanges, string namedOption = null)
         {
-            var reader = new Utf8JsonStreamReader(_jsonFileStreamProvider.OpenReadStream(), 1024);
+
             using (var memStream = new MemoryStream())
             {
                 var optionValue = string.IsNullOrWhiteSpace(namedOption) ? _options.Value : _options.Get(namedOption);
@@ -38,12 +38,14 @@ namespace Dazinator.Extensions.Options.Updatable
 
                 using (var writer = new Utf8JsonWriter(memStream))
                 {
-                    writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, _defaultSerializerOptions);
+                    using (var readStream = _jsonFileStreamProvider.OpenReadStream())
+                    {
+                        var reader = new Utf8JsonStreamReader(readStream, 1024);
+                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, _defaultSerializerOptions);
+                    }
                 }
-
                 memStream.Position = 0;
                 var writeStream = _jsonFileStreamProvider.OpenWriteStream();
-
                 if (_leaveOpen)
                 {
                     memStream.CopyTo(writeStream);
@@ -55,7 +57,6 @@ namespace Dazinator.Extensions.Options.Updatable
                         memStream.CopyTo(writeStream);
                     }
                 }
-
             }
         }
 
