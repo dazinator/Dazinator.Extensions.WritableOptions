@@ -31,7 +31,7 @@ namespace Dazinator.Extensions.Options.Updatable
 
         public Stream OpenWriteStream()
         {
-            if (File.Exists(_fullFilePath))
+            if (!File.Exists(_fullFilePath))
             {
                 return File.Create(_fullFilePath);
             }
