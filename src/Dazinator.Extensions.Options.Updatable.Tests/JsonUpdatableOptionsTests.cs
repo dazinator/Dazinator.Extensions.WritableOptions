@@ -8,6 +8,7 @@ using Xunit;
 using Dazinator.AspNet.Extensions.FileProviders;
 using Dazinator.AspNet.Extensions.FileProviders.FileInfo;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.FileProviders;
 
 namespace Dazinator.Extensions.Options.Updatable.Tests
 {
@@ -70,7 +71,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             });
 
             var modifiedFile = inMemoryFileProvider.Directory.GetFile("/appsettings.json");
-            var modifiedContents = modifiedFile.FileInfo.ReadAllContent();
+            var modifiedContents = Dazinator.AspNet.Extensions.FileProviders.IFileProviderExtensions.ReadAllContent(modifiedFile.FileInfo);
             Console.WriteLine(modifiedContents);
 
             var newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
@@ -79,6 +80,61 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             Assert.Equal(99, newOptions.Value.SomeInt);
 
         }
+
+        [Fact()]
+        public void Updating_Existing_Options_Truncates_File_Correctly()
+        {
+
+            var directory = Environment.CurrentDirectory;
+            var fileName = $"{Guid.NewGuid()}.json";
+            var filePath = Path.Combine(directory, fileName);
+            var originalJson = "{ \"SetupComplete\":false,\"SetupStatus\":3,\"Database\":{ \"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{ \"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}";
+            var expectedJson = "{\"SetupComplete\":true,\"SetupStatus\":4,\"Database\":{\"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{\"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}";
+
+            var originalByteLength = Encoding.UTF8.GetBytes(originalJson);
+            var expectedByteLength = Encoding.UTF8.GetBytes(expectedJson);
+
+            File.WriteAllText(filePath, originalJson);
+           
+            var services = new ServiceCollection();
+            services.AddOptions();
+
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.SetBasePath(directory);
+            // Add the json file (in memory) - this is the file that gets modified.
+            var fileProvider = new PhysicalFileProvider(directory);
+            configBuilder.AddJsonFile(fileProvider, fileName, false, true);
+            var config = configBuilder.Build();
+
+            services.ConfigureJsonUpdatableOptions<PlatformSetupOptionsDto>(config, new FileJsonStreamProvider<PlatformSetupOptionsDto>(directory, fileName));
+
+            //var writeStream = new MemoryStream();
+            //services.ConfigureJsonUpdatableOptions<PlatformSetupOptionsDto>(config, sectionPath,
+            //}, leaveOpen: true);
+
+            var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
+
+            var writableOptions = scope.ServiceProvider.GetRequiredService<IUpdatableOptions<PlatformSetupOptionsDto>>();
+            writableOptions.Update((options) =>
+            {
+                Assert.False(options.SetupComplete);
+                Assert.Equal(PlatformSetupStatus.AwaitingTenantAdminConfirmation, options.SetupStatus);
+
+                options.SetupComplete = true;
+                options.SetupStatus = PlatformSetupStatus.SetupComplete;
+            });
+
+            var modifiedFile = fileProvider.GetFileInfo(fileName);
+            var modifiedContents = Dazinator.AspNet.Extensions.FileProviders.IFileProviderExtensions.ReadAllContent(modifiedFile);
+            Console.WriteLine(modifiedContents);
+
+            Assert.Equal(expectedJson, modifiedContents);
+
+            var newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            Assert.True(newOptions.Value.SetupComplete);
+        }
+
 
     }
 }

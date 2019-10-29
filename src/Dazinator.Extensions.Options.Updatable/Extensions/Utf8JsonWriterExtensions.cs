@@ -12,6 +12,7 @@ namespace System.Text.Json
             // Special case - when writing to the root we don't need to preserve anything from the reader.
             if (sectionSegments.Length == 0)
             {
+                
                 JsonSerializer.Serialize<TObject>(writer, newValue, options);
                 try
                 {

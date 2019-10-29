@@ -45,9 +45,44 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             Assert.NotNull(deserialised);
             Assert.True(deserialised.Enabled);
 
+        }
 
+        [Fact]
+        public void Can_Update_Root_Regression()
+        {
+            var json = "{ \"SetupComplete\":true,\"SetupStatus\":4,\"Database\":{ \"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{ \"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}";
+            var expectedJson = "{\"SetupComplete\":true,\"SetupStatus\":4,\"Database\":{\"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{\"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}";
+
+            byte[] data = Encoding.UTF8.GetBytes(json);
+
+            PlatformSetupOptionsDto existing = JsonSerializer.Deserialize<PlatformSetupOptionsDto>(json);
+            existing.SetupComplete = true;
+            existing.SetupStatus = PlatformSetupStatus.SetupComplete;
+
+
+            var reader = new Utf8JsonReader(data, isFinalBlock: true, state: default);
+            var memStream = new MemoryStream();
+            var options = new JsonSerializerOptions() { IgnoreNullValues = true };
+            using (var writer = new Utf8JsonWriter(memStream))
+            {
+                writer.WriteJsonWithModifiedSection<PlatformSetupOptionsDto>(reader, "", existing, options);
+            }
+            memStream.Position = 0;
+            var written = Encoding.UTF8.GetString(memStream.ToArray());
+            Assert.Equal(expectedJson, written);
+            // Console.WriteLine(written);
+            memStream.Position = 0;
+            var doc = JsonDocument.Parse(memStream);
+            var result = doc.TryGetPropertyAtPath("", out JsonElement element);
+            Assert.True(result);
+
+            var deserialised = JsonSerializer.Deserialize<PlatformSetupOptionsDto>(element.GetRawText());
+            Assert.NotNull(deserialised);
+            Assert.True(deserialised.SetupComplete);
 
         }
+
+
 
         [Fact]
         public void Can_Write_Different_Types()
@@ -79,4 +114,6 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
 
         }
     }
+
+ 
 }
