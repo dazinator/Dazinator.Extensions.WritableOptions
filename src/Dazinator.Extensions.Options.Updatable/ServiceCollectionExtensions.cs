@@ -11,7 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, IConfigurationSection configSection, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen = false)
               where TOptions : class, new()
         {
-            var fullSectionName = $"{configSection.Path}:{configSection.Key}".TrimStart(':');
+            var fullSectionName = $"{configSection.Path}".TrimStart(':');
             services.Configure<TOptions>(configSection);
             return AddJsonUpdatableOptions(services, jsonStreamProvider, leaveOpen, fullSectionName);
         }
@@ -43,6 +43,7 @@ where TOptions : class, new()
 where TOptions : class, new()
         {
             services.Configure<TOptions>(configuration);
+            
             var streamProvider = new DelegateJsonStreamProvider<TOptions>(getReadStream, getWriteStream);
             return AddJsonUpdatableOptions(services, streamProvider, leaveOpen, string.Empty);           
          
@@ -51,16 +52,16 @@ where TOptions : class, new()
         public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, string sectionName, Func<Stream> getReadStream, Func<Stream> getWriteStream, bool leaveOpen = false)
 where TOptions : class, new()
         {
-            IConfiguration section = null;
             if (!string.IsNullOrWhiteSpace(sectionName))
             {
-                section = configuration.GetSection(sectionName);
+                var section = configuration.GetSection(sectionName);
+                services.ConfigureJsonUpdatableOptions<TOptions>(section, getReadStream, getWriteStream, leaveOpen);
             }
             else
             {
-                section = configuration;
+                services.ConfigureJsonUpdatableOptions<TOptions>(configuration, getReadStream, getWriteStream, leaveOpen);
+
             }
-            services.ConfigureJsonUpdatableOptions<TOptions>(section, getReadStream, getWriteStream, leaveOpen);
             return services;
         }
 

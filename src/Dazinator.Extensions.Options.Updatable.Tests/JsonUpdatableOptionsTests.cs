@@ -18,6 +18,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
 
         [Theory]
         [InlineData(@"")]
+        [InlineData(@"TestPath:Foo")]
         public void Can_Update_Options(string sectionPath)
         {
 
