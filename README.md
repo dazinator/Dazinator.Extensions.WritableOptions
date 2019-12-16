@@ -63,7 +63,7 @@ However if you just want to use System.IO you can use:
 	 
 ```
 
-You can now update options by injecting `IUpdatableOptions<TestOptions>` like so:
+You can now update options by injecting `IOptionsUpdater<TestOptions>` like so:
 
 
 ```
