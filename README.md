@@ -35,13 +35,13 @@ You can now use and update options by injecting `IUpdatableOptions<TestOptions>`
 
 
 ```
-public class Foo
+public class SomeController
 {
 
-    public Foo(IUpdatableOptions<TestOptions> updatableOptions)
+    public SomeController(IOptionsUpdater<TestOptions> updater, IOptionsSnapshot<TestOptions> snapShot)
 	{
 	
-	   options.Update((options)=>{options.SomeFlag = true; });
+	   updater.Update((options)=>{options.SomeFlag = true; }, snapShot);
 
 	   // The "foo:bar" section of the "mysettings.json" file has now been updated.
 	}
@@ -57,13 +57,20 @@ Note that when you call `services.ConfigureJsonUpdatableOptions<TOptions>()` or 
 
  Use the `Update` overload that accepts the name for the named options. In this case you must register the named options with the option system yourself in `startup.cs`
  ```
-public class Foo
+ public class SomeController
 {
-    public Foo(IUpdatableOptions<TestOptions> updatableOptions)
-	{	
-	   options.Update((options)=>{options.SomeFlag = true; }, "Options1");
+
+    public SomeController(IOptionsUpdater<TestOptions> updater, IOptionsMonitor<TestOptions> monitor)
+	{
+	
+	   var namedOptions = monitor.Get("Options1");
+	   updater.Update((options)=>{options.SomeFlag = true; }, namedOptions, "Options1");
+
+	   // The "foo:bar" section of the "mysettings.json" file has now been updated.
 	}
+
 }
+
 ```
 
 ## Notes
