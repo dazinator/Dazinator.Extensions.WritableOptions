@@ -5,38 +5,36 @@ using System.Text.Json;
 
 namespace Dazinator.Extensions.Options.Updatable
 {
-    public class JsonUpdatableOptions<TOptions> : IUpdatableOptions<TOptions>
+    public class JsonUpdatableOptions<TOptions> : IOptionsUpdater<TOptions>
         where TOptions : class, new()
     {
-        private IOptionsSnapshot<TOptions> _options;
+        // private IOptionsSnapshot<TOptions> _options;
         private readonly IJsonStreamProvider<TOptions> _jsonFileStreamProvider;
         private readonly IOptionsMonitorCache<TOptions> _cache;
         private readonly string _sectionName;
         private readonly bool _leaveOpen;
         private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
 
-        public TOptions Value => _options.Value;
+        // public TOptions Value => _options.Value;
 
         public JsonUpdatableOptions(
-            IOptionsSnapshot<TOptions> options,
             IJsonStreamProvider<TOptions> jsonFileStreamProvider,
             IOptionsMonitorCache<TOptions> cache,
             string sectionName,
             bool leaveOpen = false)
         {
-            _options = options;
             _jsonFileStreamProvider = jsonFileStreamProvider;
             _cache = cache;
             _sectionName = sectionName;
             _leaveOpen = leaveOpen;
         }
 
-        public void Update(Action<TOptions> makeChanges, string namedOption = null)
+        public void Update(Action<TOptions> makeChanges, TOptions options, string namedOption = null)
         {
 
             using (var memStream = new MemoryStream())
             {
-                var optionValue = string.IsNullOrWhiteSpace(namedOption) ? _options.Value : _options.Get(namedOption);
+                var optionValue = options; // string.IsNullOrWhiteSpace(namedOption) ? _options.Value : _options.Get(namedOption);
                 makeChanges(optionValue);
 
                 using (var writer = new Utf8JsonWriter(memStream))
@@ -67,12 +65,7 @@ namespace Dazinator.Extensions.Options.Updatable
                 _cache.TryAdd(name, optionValue);
 
             }
-        }
-
-        public TOptions Get(string name)
-        {
-            return _options.Get(name);
-        }
+        }      
     }
 }
 
