@@ -10,6 +10,7 @@ namespace Dazinator.Extensions.Options.Updatable
     {
         private IOptionsSnapshot<TOptions> _options;
         private readonly IJsonStreamProvider<TOptions> _jsonFileStreamProvider;
+        private readonly IOptionsMonitorCache<TOptions> _cache;
         private readonly string _sectionName;
         private readonly bool _leaveOpen;
         private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
@@ -19,11 +20,13 @@ namespace Dazinator.Extensions.Options.Updatable
         public JsonUpdatableOptions(
             IOptionsSnapshot<TOptions> options,
             IJsonStreamProvider<TOptions> jsonFileStreamProvider,
+            IOptionsMonitorCache<TOptions> cache,
             string sectionName,
             bool leaveOpen = false)
         {
             _options = options;
             _jsonFileStreamProvider = jsonFileStreamProvider;
+            _cache = cache;
             _sectionName = sectionName;
             _leaveOpen = leaveOpen;
         }
@@ -57,6 +60,12 @@ namespace Dazinator.Extensions.Options.Updatable
                         memStream.CopyTo(writeStream);
                     }
                 }
+
+
+                var name = namedOption ?? Microsoft.Extensions.Options.Options.DefaultName;
+                _cache.TryRemove(name);
+                _cache.TryAdd(name, optionValue);
+
             }
         }
 

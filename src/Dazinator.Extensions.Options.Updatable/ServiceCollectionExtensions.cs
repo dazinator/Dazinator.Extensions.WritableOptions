@@ -28,7 +28,9 @@ where TOptions : class, new()
             return services.AddScoped<IUpdatableOptions<TOptions>, JsonUpdatableOptions<TOptions>>(sp =>
             {
                 var optionsSnapshot = sp.GetRequiredService<IOptionsSnapshot<TOptions>>();
-                return new JsonUpdatableOptions<TOptions>(optionsSnapshot, jsonStreamProvider, fullSectionName, leaveOpen);
+                var optionsCache = sp.GetRequiredService<IOptionsMonitorCache<TOptions>>();
+
+                return new JsonUpdatableOptions<TOptions>(optionsSnapshot, jsonStreamProvider, optionsCache,fullSectionName, leaveOpen);
             });
         }
 
