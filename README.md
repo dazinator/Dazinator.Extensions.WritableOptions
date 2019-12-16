@@ -70,10 +70,10 @@ You can now update options by injecting `IOptionsUpdater<TestOptions>` like so:
 public class SomeController
 {
 
-    public SomeController(IOptionsUpdater<TestOptions> updater, IOptionsSnapshot<TestOptions> snapShot)
+    public SomeController(IOptionsUpdater<TestOptions> updater)
 	{
 	
-	   updater.Update((options)=>{options.SomeFlag = true; }, snapShot);
+	   updater.Update((options)=>{options.SomeFlag = true; });
 
 	   // The "foo:bar" section of the "mysettings.json" file has now been updated.
 	}
@@ -92,12 +92,9 @@ Note that when you call `services.ConfigureJsonUpdatableOptions<TOptions>()` or 
  public class SomeController
 {
 
-    public SomeController(IOptionsUpdater<TestOptions> updater, IOptionsMonitor<TestOptions> monitor)
-	{
-	
-	   var namedOptions = monitor.Get("Options1");
-	   updater.Update((options)=>{options.SomeFlag = true; }, namedOptions, "Options1");
-
+    public SomeController(IOptionsUpdater<TestOptions> updater)
+	{	
+	   updater.Update((options)=>{options.SomeFlag = true; }, "Options1");
 	   // The "foo:bar" section of the "mysettings.json" file has now been updated.
 	}
 

@@ -58,7 +58,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
 
-            var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
+           // var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
             var writableOptions = scope.ServiceProvider.GetRequiredService<IOptionsUpdater<TestOptions>>();
             writableOptions.Update((options) =>
             {
@@ -69,7 +69,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
                 options.Enabled = true;
                 options.SomeDecimal = 8.2m;
                 options.SomeInt = 99;
-            }, existingOptions.Value);
+            });
 
             var modifiedFile = inMemoryFileProvider.Directory.GetFile("/appsettings.json");
             var modifiedContents = Dazinator.AspNet.Extensions.FileProviders.IFileProviderExtensions.ReadAllContent(modifiedFile.FileInfo);
@@ -116,7 +116,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
 
-            var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            //var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
             var writableOptions = scope.ServiceProvider.GetRequiredService<IOptionsUpdater<PlatformSetupOptionsDto>>();
             writableOptions.Update((options) =>
             {
@@ -125,7 +125,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
 
                 options.SetupComplete = true;
                 options.SetupStatus = PlatformSetupStatus.SetupComplete;
-            }, existingOptions.Value);
+            });
 
             var modifiedFile = fileProvider.GetFileInfo(fileName);
             var modifiedContents = Dazinator.AspNet.Extensions.FileProviders.IFileProviderExtensions.ReadAllContent(modifiedFile);

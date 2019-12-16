@@ -8,6 +8,8 @@ namespace Dazinator.Extensions.Options.Updatable
     public class JsonUpdatableOptions<TOptions> : IOptionsUpdater<TOptions>
         where TOptions : class, new()
     {
+        private readonly IOptionsMonitor<TOptions> _monitor;
+
         // private IOptionsSnapshot<TOptions> _options;
         private readonly IJsonStreamProvider<TOptions> _jsonFileStreamProvider;
         private readonly IOptionsMonitorCache<TOptions> _cache;
@@ -18,23 +20,25 @@ namespace Dazinator.Extensions.Options.Updatable
         // public TOptions Value => _options.Value;
 
         public JsonUpdatableOptions(
+            IOptionsMonitor<TOptions> monitor,
             IJsonStreamProvider<TOptions> jsonFileStreamProvider,
             IOptionsMonitorCache<TOptions> cache,
             string sectionName,
             bool leaveOpen = false)
         {
+            _monitor = monitor;
             _jsonFileStreamProvider = jsonFileStreamProvider;
             _cache = cache;
             _sectionName = sectionName;
             _leaveOpen = leaveOpen;
         }
 
-        public void Update(Action<TOptions> makeChanges, TOptions options, string namedOption = null)
+        public void Update(Action<TOptions> makeChanges, string namedOption = null)
         {
 
             using (var memStream = new MemoryStream())
             {
-                var optionValue = options; // string.IsNullOrWhiteSpace(namedOption) ? _options.Value : _options.Get(namedOption);
+                var optionValue =   string.IsNullOrWhiteSpace(namedOption) ? _monitor.CurrentValue : _monitor.Get(namedOption);
                 makeChanges(optionValue);
 
                 using (var writer = new Utf8JsonWriter(memStream))

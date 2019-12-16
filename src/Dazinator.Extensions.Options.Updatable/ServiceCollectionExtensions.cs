@@ -30,7 +30,9 @@ where TOptions : class, new()
             {
                 // var optionsSnapshot = sp.GetRequiredService<IOptionsSnapshot<TOptions>>();
                 var optionsCache = sp.GetRequiredService<IOptionsMonitorCache<TOptions>>();
-                return new JsonUpdatableOptions<TOptions>(jsonStreamProvider, optionsCache, fullSectionName, leaveOpen);
+                var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<TOptions>>();
+
+                return new JsonUpdatableOptions<TOptions>(optionsMonitor, jsonStreamProvider, optionsCache, fullSectionName, leaveOpen);
             });
         }
 
