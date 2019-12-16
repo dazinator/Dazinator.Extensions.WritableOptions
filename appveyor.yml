@@ -10,9 +10,9 @@ before_build:
 build:
   verbosity: detailed
 build_script:
-- cmd: dotnet restore ./src/Dazinator.Extensions.Options.Updatable.sln --disable-parallel -p:PackageVersion=%GitVersion_FullSemVer%
-- cmd: dotnet build ./src/Dazinator.Extensions.Options.Updatable.sln -c Release --disable-parallel
-- cmd: dotnet pack ./src/Dazinator.Extensions.Options.Updatable.sln -c Release --output %APPVEYOR_BUILD_FOLDER%/artifacts/ -p:PackageVersion=%GitVersion_FullSemVer%
+- cmd: dotnet restore ./src/Dazinator.Extensions.Options.sln --disable-parallel -p:PackageVersion=%GitVersion_FullSemVer%
+- cmd: dotnet build ./src/Dazinator.Extensions.Options.sln -c Release --disable-parallel
+- cmd: dotnet pack ./src/Dazinator.Extensions.Options.sln -c Release --output %APPVEYOR_BUILD_FOLDER%/artifacts/ -p:PackageVersion=%GitVersion_FullSemVer%
 artifacts:
 - path: artifacts/*
 - path: /src/**/*.snupkg
