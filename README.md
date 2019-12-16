@@ -1,6 +1,36 @@
-## Updatable Options
+## Dazinator Extensions Options
 
-Allows you to Update an `IOptions<T>` provided value at runtime. Currently only JSON file support is provided.
+This repo produces the following nuget packages:
+
+- Dazinator.Extensions.Options (Support library containing optional enhancements for use with `Microsoft.Extensions.Options`)
+- Dazinator.Extensions.Options.Updatable (Allows you to save changes to options instances to a JSON file at runtime.)
+
+
+## Dazinator.Extensions.Options
+
+This library provides optional enhancements for usage with `Microsoft.Extensions.Options`.
+
+### An alternative `OptionsManager` that uses same cache as OptionsMonitor
+
+The default `IOptionsManager` provided by Microsoft, has it's own privately initialised cache for options instances. 
+`IOptionsMonitor` uses a seperate cache, registered as a singleton on startup.
+This can cause problems in some scenarios where you are using both `IOptionsSnapshot` and `IOptionsMonitor` in the same request because they each will resolve your options instance from seperate caches, which can casue inconsistencies.
+To overcome this, you can register a replacement `IOptionsManager` that will share the same cache.
+Usage:
+
+```
+ services.AddOptions()
+         .AddOptionsManagerBackedByMonitorCache // solves it..
+
+```
+
+This replaces the registration for `OptionsManager` with one that will share the same cache with `OptionsMonitor`.
+
+### Dazinator.Extensions.Options.Updatable
+
+Allows you to write an options instance with changed values to a JSON file (also allowing you to specify a section path within the JSON)
+
+First, include the target JSON file as part of your app configuration:
 
 `Program.cs`
 
@@ -12,12 +42,14 @@ Allows you to Update an `IOptions<T>` provided value at runtime. Currently only 
 	  
 ```
 
+Then, `AddOptions()` and then Configure your `TOptions` to be updatable.
 
 `Startup.cs`:
 
 ```
 
-     services.AddOptions();
+     services.AddOptions().AddOptionsManagerBackedByMonitorCache();
+
 	 services.ConfigureJsonUpdatableOptions<TestOptions>("foo:bar", () => File.OpenRead("mysettings.json"), () => File.OpenWrite("mysettings.json"), leaveOpen: false);
 	
 
@@ -31,7 +63,7 @@ However if you just want to use System.IO you can use:
 	 
 ```
 
-You can now use and update options by injecting `IUpdatableOptions<TestOptions>` like so:
+You can now update options by injecting `IUpdatableOptions<TestOptions>` like so:
 
 
 ```
