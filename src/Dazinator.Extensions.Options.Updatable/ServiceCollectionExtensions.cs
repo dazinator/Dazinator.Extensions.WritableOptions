@@ -29,10 +29,10 @@ where TOptions : class, new()
             return services.AddScoped<IUpdatableOptions<TOptions>, JsonUpdatableOptions<TOptions>>(sp =>
             {
                 // var optionsSnapshot = sp.GetRequiredService<IOptionsSnapshot<TOptions>>();
-                var optionsCache = sp.GetRequiredService<IOptionsMonitorCache<TOptions>>();
+               // var optionsCache = sp.GetRequiredService<IOptionsMonitorCache<TOptions>>();
                 var optionsMonitor = sp.GetRequiredService<IOptionsMonitor<TOptions>>();
 
-                return new JsonUpdatableOptions<TOptions>(optionsMonitor, jsonStreamProvider, optionsCache, fullSectionName, leaveOpen);
+                return new JsonUpdatableOptions<TOptions>(optionsMonitor, jsonStreamProvider, fullSectionName, leaveOpen);
             });
         }
 
