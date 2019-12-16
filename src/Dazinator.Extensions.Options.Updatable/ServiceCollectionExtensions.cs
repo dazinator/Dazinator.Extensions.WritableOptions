@@ -25,12 +25,12 @@ where TOptions : class, new()
 
         private static IServiceCollection AddJsonUpdatableOptions<TOptions>(IServiceCollection services, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen, string fullSectionName) where TOptions : class, new()
         {
+            services.AddOptionsManagerBackedByMonitorCache<TOptions>();
             return services.AddScoped<IOptionsUpdater<TOptions>, JsonUpdatableOptions<TOptions>>(sp =>
             {
-               // var optionsSnapshot = sp.GetRequiredService<IOptionsSnapshot<TOptions>>();
+                // var optionsSnapshot = sp.GetRequiredService<IOptionsSnapshot<TOptions>>();
                 var optionsCache = sp.GetRequiredService<IOptionsMonitorCache<TOptions>>();
-
-                return new JsonUpdatableOptions<TOptions>(jsonStreamProvider, optionsCache,fullSectionName, leaveOpen);
+                return new JsonUpdatableOptions<TOptions>(jsonStreamProvider, optionsCache, fullSectionName, leaveOpen);
             });
         }
 
@@ -40,15 +40,15 @@ where TOptions : class, new()
             var streamProvider = new DelegateJsonStreamProvider<TOptions>(getReadStream, getWriteStream);
             return services.ConfigureJsonUpdatableOptions(configSection, streamProvider, leaveOpen);
         }
-        
+
         public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, Func<Stream> getReadStream, Func<Stream> getWriteStream, bool leaveOpen = false)
 where TOptions : class, new()
         {
             services.Configure<TOptions>(configuration);
-            
+
             var streamProvider = new DelegateJsonStreamProvider<TOptions>(getReadStream, getWriteStream);
-            return AddJsonUpdatableOptions(services, streamProvider, leaveOpen, string.Empty);           
-         
+            return AddJsonUpdatableOptions(services, streamProvider, leaveOpen, string.Empty);
+
         }
 
         public static IServiceCollection ConfigureJsonUpdatableOptions<TOptions>(this IServiceCollection services, IConfiguration configuration, string sectionName, Func<Stream> getReadStream, Func<Stream> getWriteStream, bool leaveOpen = false)
@@ -78,7 +78,7 @@ where TOptions : class, new()
             where TOptions : class, new()
         {
             return AddJsonUpdatableOptions(services, jsonStreamProvider, leaveOpen, sectionPath);
-       
+
         }
     }
 }
