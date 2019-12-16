@@ -59,7 +59,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             using var scope = sp.CreateScope();
 
            // var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
-            var writableOptions = scope.ServiceProvider.GetRequiredService<IOptionsUpdater<TestOptions>>();
+            var writableOptions = scope.ServiceProvider.GetRequiredService<IUpdatableOptions<TestOptions>>();
             writableOptions.Update((options) =>
             {
                 Assert.Null(options.SomeDecimal);
@@ -117,7 +117,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             using var scope = sp.CreateScope();
 
             //var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
-            var writableOptions = scope.ServiceProvider.GetRequiredService<IOptionsUpdater<PlatformSetupOptionsDto>>();
+            var writableOptions = scope.ServiceProvider.GetRequiredService<IUpdatableOptions<PlatformSetupOptionsDto>>();
             writableOptions.Update((options) =>
             {
                 Assert.False(options.SetupComplete);

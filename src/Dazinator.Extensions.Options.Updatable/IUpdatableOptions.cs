@@ -2,12 +2,12 @@
 
 namespace Dazinator.Extensions.Options.Updatable
 {
-    public interface IOptionsUpdater<TOptions>
+    public interface IUpdatableOptions<TOptions>
     {
         void Update(Action<TOptions> makeChanges, string namedOption = null);
-       // TOptions Value { get; }
+        TOptions Value { get; }
 
-       // TOptions Get(string name);
+        TOptions Get(string name);
     }
 }
 

@@ -26,7 +26,7 @@ where TOptions : class, new()
         private static IServiceCollection AddJsonUpdatableOptions<TOptions>(IServiceCollection services, IJsonStreamProvider<TOptions> jsonStreamProvider, bool leaveOpen, string fullSectionName) where TOptions : class, new()
         {
             services.AddOptionsManagerBackedByMonitorCache<TOptions>();
-            return services.AddScoped<IOptionsUpdater<TOptions>, JsonUpdatableOptions<TOptions>>(sp =>
+            return services.AddScoped<IUpdatableOptions<TOptions>, JsonUpdatableOptions<TOptions>>(sp =>
             {
                 // var optionsSnapshot = sp.GetRequiredService<IOptionsSnapshot<TOptions>>();
                 var optionsCache = sp.GetRequiredService<IOptionsMonitorCache<TOptions>>();

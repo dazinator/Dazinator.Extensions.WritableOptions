@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace Dazinator.Extensions.Options.Updatable
 {
-    public class JsonUpdatableOptions<TOptions> : IOptionsUpdater<TOptions>
+    public class JsonUpdatableOptions<TOptions> : IUpdatableOptions<TOptions>
         where TOptions : class, new()
     {
         private readonly IOptionsMonitor<TOptions> _monitor;
@@ -17,7 +17,9 @@ namespace Dazinator.Extensions.Options.Updatable
         private readonly bool _leaveOpen;
         private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
 
-        // public TOptions Value => _options.Value;
+        public TOptions Value => _monitor.CurrentValue;
+
+        public TOptions Get(string name) => _monitor.Get(name);
 
         public JsonUpdatableOptions(
             IOptionsMonitor<TOptions> monitor,
