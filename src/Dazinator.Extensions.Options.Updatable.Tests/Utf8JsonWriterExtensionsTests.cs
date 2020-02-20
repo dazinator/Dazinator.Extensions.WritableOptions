@@ -47,6 +47,42 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
 
         }
 
+
+        [Fact]
+        public void Can_RoundTrip_Escape_Sequences()
+        {
+
+            var expected = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=hub2;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            var testObject = new TestEscapeSequenceOptions() { ConnectionString = expected };
+            var options = new JsonSerializerOptions() { IgnoreNullValues = true };
+            var expectedJson = System.Text.Json.JsonSerializer.Serialize<TestEscapeSequenceOptions>(testObject, options);
+                
+            byte[] data = Encoding.UTF8.GetBytes(expectedJson);
+            var reader = new Utf8JsonReader(data, isFinalBlock: true, state: default);
+            var sectionPath = "";
+
+            var memStream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(memStream))
+            {
+                writer.WriteJsonWithModifiedSection<TestEscapeSequenceOptions>(reader, sectionPath, testObject, options);
+            }
+            memStream.Position = 0;
+            var written = Encoding.UTF8.GetString(memStream.ToArray());
+            Assert.Equal(expectedJson, written);
+            // Console.WriteLine(written);
+            memStream.Position = 0;
+            var doc = JsonDocument.Parse(memStream);
+            var result = doc.TryGetPropertyAtPath(sectionPath, out JsonElement element);
+            Assert.True(result);
+
+            var deserialised = JsonSerializer.Deserialize<TestEscapeSequenceOptions>(element.GetRawText());
+            Assert.NotNull(deserialised);
+
+            Assert.Equal(expected, deserialised.ConnectionString);
+
+        }
+
+
         [Fact]
         public void Can_Update_Root_Regression()
         {

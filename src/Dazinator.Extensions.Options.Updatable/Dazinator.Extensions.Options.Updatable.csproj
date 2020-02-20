@@ -9,7 +9,8 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="3.0.0-preview7.19362.4" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.0.0-preview7.19362.4" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.0.0-preview7.19362.4" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="System.Text.Json" Version="4.7.0" />
+    <!--<PackageReference Include="Newtonsoft.Json" Version="12.0.2" />-->
   </ItemGroup>
 
   <ItemGroup>

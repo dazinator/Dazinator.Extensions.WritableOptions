@@ -7,6 +7,11 @@
         public decimal? SomeDecimal { get; set; }
     }
 
+    public class TestEscapeSequenceOptions
+    {
+        public string ConnectionString { get; set; }
+    }
+
     public enum PlatformSetupStatus
     {
         SetupDatabase,
