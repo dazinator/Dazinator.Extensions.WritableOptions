@@ -51,7 +51,8 @@
             {
 
                 case JsonTokenType.Comment:
-                    writer.WriteCommentValue(reader.ValueSpan);
+                    var value = reader.ValueSpan;
+                    writer.WriteCommentValue(value); // comment values probably double encoded not too worried, change to GetString() if problems?
                     break;
                 case JsonTokenType.EndArray:
                     writer.WriteEndArray();
@@ -91,8 +92,9 @@
                 case JsonTokenType.StartObject:
                     writer.WriteStartObject();
                     break;
-                case JsonTokenType.String:
-                    writer.WriteStringValue(reader.ValueSpan);
+                case JsonTokenType.String:                   
+                    var valueString = reader.GetString();
+                    writer.WriteStringValue(valueString);
                     break;
                 case JsonTokenType.True:
                     writer.WriteBooleanValue(true);
@@ -100,8 +102,6 @@
 
             }
         }
-
-
     }
 }
 

@@ -203,6 +203,160 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             Assert.True(newOptions.Value.SetupComplete);
         }
 
+        [Fact()]
+        public void Updating_Existing_Options_Roundtrips_EscapeSequence_PhysicalFileSystem()
+        {
+
+            var directory = Environment.CurrentDirectory;
+            var fileName = $"{Guid.NewGuid()}.json";
+            var filePath = Path.Combine(directory, fileName);
+
+            var expectedConnString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+            var originalJson = "{ \"SetupComplete\":false,\"SetupStatus\":3,\"Database\":{ \"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{ \"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}";
+            var expectedJson = "{\"SetupComplete\":true,\"SetupStatus\":4,\"Database\":{\"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{\"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}";
+
+            var originalByteLength = Encoding.UTF8.GetBytes(originalJson);
+            var expectedByteLength = Encoding.UTF8.GetBytes(expectedJson);
+
+            File.WriteAllText(filePath, originalJson);
+
+            var services = new ServiceCollection();
+            services.AddOptions();
+
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.SetBasePath(directory);
+            // Add the json file (in memory) - this is the file that gets modified.
+            var fileProvider = new PhysicalFileProvider(directory);
+            configBuilder.AddJsonFile(fileProvider, fileName, false, true);
+            var config = configBuilder.Build();
+
+            services.ConfigureJsonUpdatableOptions<PlatformSetupOptionsDto>(config, new FileJsonStreamProvider<PlatformSetupOptionsDto>(directory, fileName));
+
+            //var writeStream = new MemoryStream();
+            //services.ConfigureJsonUpdatableOptions<PlatformSetupOptionsDto>(config, sectionPath,
+            //}, leaveOpen: true);
+
+            var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
+
+            //var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            var writableOptions = scope.ServiceProvider.GetRequiredService<IUpdatableOptions<PlatformSetupOptionsDto>>();
+            writableOptions.Update((options) =>
+            {
+                Assert.False(options.SetupComplete);
+                Assert.Equal(PlatformSetupStatus.AwaitingTenantAdminConfirmation, options.SetupStatus);
+
+                options.SetupComplete = true;
+                options.SetupStatus = PlatformSetupStatus.SetupComplete;
+            });
+
+            var modifiedFile = fileProvider.GetFileInfo(fileName);
+            var modifiedContents = IFileProviderExtensions.ReadAllContent(modifiedFile);
+            Console.WriteLine(modifiedContents);
+            Assert.Equal(expectedJson, modifiedContents);
+
+            var newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            Assert.True(newOptions.Value.SetupComplete);
+            Assert.Equal(expectedConnString, newOptions.Value.Database.ConnectionString);
+
+            // udpate again
+
+            writableOptions.Update((options) =>
+            {
+                Assert.Equal(expectedConnString, options.Database.ConnectionString);
+            });
+
+            modifiedFile = fileProvider.GetFileInfo(fileName);
+            modifiedContents = IFileProviderExtensions.ReadAllContent(modifiedFile);
+            Console.WriteLine(modifiedContents);
+            Assert.Equal(expectedJson, modifiedContents);
+
+            newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            Assert.Equal(expectedConnString, newOptions.Value.Database.ConnectionString);
+
+
+
+
+
+
+        }
+
+        [Fact()]
+        public void Updating_Existing_Options_Roundtrips_EscapeSequence_WithSectionAndPhysicalFileSystem()
+        {
+
+            var directory = Environment.CurrentDirectory;
+            var fileName = $"{Guid.NewGuid()}.json";
+            var filePath = Path.Combine(directory, fileName);
+
+            var expectedConnString = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+
+            var originalJson = "{\"Foo\":\"bar\\bar\",\"Setup\":{\"SetupComplete\":false,\"SetupStatus\":3,\"Database\":{\"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{\"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}}";
+            var expectedJson = "{\"Foo\":\"bar\\bar\",\"Setup\":{\"SetupComplete\":true,\"SetupStatus\":4,\"Database\":{\"ConnectionString\":\"Data Source=(localdb)\\\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False\",\"Provider\":\"System.Data.SqlClient\"},\"Smtp\":{\"SmtpHost\":\"foo.bar.com\",\"SmtpPort\":444,\"FromName\":\"Foo\",\"FromEmailAddress\":\"foo@bar.io\",\"Username\":\"foo@bar.io\",\"Password\":\"FAKE\",\"RequiresAuthentication\":true},\"Tenant\":{\"Id\":0,\"Email\":\"foo@bar.io\",\"IsCurrent\":false}}}";
+
+            var originalByteLength = Encoding.UTF8.GetBytes(originalJson);
+            var expectedByteLength = Encoding.UTF8.GetBytes(expectedJson);
+
+            File.WriteAllText(filePath, originalJson);
+
+            var services = new ServiceCollection();
+            services.AddOptions();
+
+            var configBuilder = new ConfigurationBuilder();
+            configBuilder.SetBasePath(directory);
+            // Add the json file (in memory) - this is the file that gets modified.
+            var fileProvider = new PhysicalFileProvider(directory);
+            configBuilder.AddJsonFile(fileProvider, fileName, false, true);
+            var config = configBuilder.Build();
+            var section = config.GetSection("Setup");
+
+            services.ConfigureJsonUpdatableOptions<PlatformSetupOptionsDto>(section, new FileJsonStreamProvider<PlatformSetupOptionsDto>(directory, fileName));
+
+            //var writeStream = new MemoryStream();
+            //services.ConfigureJsonUpdatableOptions<PlatformSetupOptionsDto>(config, sectionPath,
+            //}, leaveOpen: true);
+
+            var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
+
+            //var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            var writableOptions = scope.ServiceProvider.GetRequiredService<IUpdatableOptions<PlatformSetupOptionsDto>>();
+            writableOptions.Update((options) =>
+            {
+                Assert.False(options.SetupComplete);
+                Assert.Equal(PlatformSetupStatus.AwaitingTenantAdminConfirmation, options.SetupStatus);
+
+                options.SetupComplete = true;
+                options.SetupStatus = PlatformSetupStatus.SetupComplete;
+            });
+
+            var modifiedFile = fileProvider.GetFileInfo(fileName);
+            var modifiedContents = IFileProviderExtensions.ReadAllContent(modifiedFile);
+            Console.WriteLine(modifiedContents);
+            Assert.Equal(expectedJson, modifiedContents);
+
+            var newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            Assert.True(newOptions.Value.SetupComplete);
+            Assert.Equal(expectedConnString, newOptions.Value.Database.ConnectionString);
+
+            // udpate again
+
+            writableOptions.Update((options) =>
+            {
+                Assert.Equal(expectedConnString, options.Database.ConnectionString);
+            });
+
+            modifiedFile = fileProvider.GetFileInfo(fileName);
+            modifiedContents = IFileProviderExtensions.ReadAllContent(modifiedFile);
+            Console.WriteLine(modifiedContents);
+            Assert.Equal(expectedJson, modifiedContents);
+
+            newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<PlatformSetupOptionsDto>>();
+            Assert.Equal(expectedConnString, newOptions.Value.Database.ConnectionString);
+
+        }
+
 
     }
 }
