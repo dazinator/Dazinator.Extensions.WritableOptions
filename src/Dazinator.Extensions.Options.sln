@@ -12,11 +12,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dazinator.Extensions.Options.Updatable", "Dazinator.Extensions.Options.Updatable\Dazinator.Extensions.Options.Updatable.csproj", "{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dazinator.Extensions.Options.Updatable.Tests", "Dazinator.Extensions.Options.Updatable.Tests\Dazinator.Extensions.Options.Updatable.Tests.csproj", "{15C5D2C4-A3DD-49F1-A41B-4249FC1DE03F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dazinator.Extensions.Options", "Dazinator.Extensions.Options\Dazinator.Extensions.Options.csproj", "{F58D0DAE-6B6D-4F60-B11D-B67B66C50FE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dazinator.Extensions.Options.Updatable", "Dazinator.Extensions.Options.Updatable\Dazinator.Extensions.Options.Updatable.csproj", "{9893E8D0-08D4-4CE2-B056-BE3AEB875DE2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F58D0DAE-6B6D-4F60-B11D-B67B66C50FE9} = {F58D0DAE-6B6D-4F60-B11D-B67B66C50FE9}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BB8D5C3-2C99-43E9-97F8-1DCB5027BD92}.Release|Any CPU.Build.0 = Release|Any CPU
 		{15C5D2C4-A3DD-49F1-A41B-4249FC1DE03F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{15C5D2C4-A3DD-49F1-A41B-4249FC1DE03F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15C5D2C4-A3DD-49F1-A41B-4249FC1DE03F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -36,6 +35,10 @@ Global
 		{F58D0DAE-6B6D-4F60-B11D-B67B66C50FE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F58D0DAE-6B6D-4F60-B11D-B67B66C50FE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F58D0DAE-6B6D-4F60-B11D-B67B66C50FE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9893E8D0-08D4-4CE2-B056-BE3AEB875DE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9893E8D0-08D4-4CE2-B056-BE3AEB875DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9893E8D0-08D4-4CE2-B056-BE3AEB875DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9893E8D0-08D4-4CE2-B056-BE3AEB875DE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
