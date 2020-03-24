@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.Options
 
             services.RemoveAll(typeof(IOptionsSnapshot<>));
             services.RemoveAll(typeof(IOptions<>));
-
+            
             services.TryAdd(ServiceDescriptor.Singleton(typeof(IOptions<>), typeof(Dazinator.Extensions.Options.OptionsManager<>)));
             services.TryAdd(ServiceDescriptor.Scoped(typeof(IOptionsSnapshot<>), typeof(Dazinator.Extensions.Options.OptionsManager<>)));
             return services;

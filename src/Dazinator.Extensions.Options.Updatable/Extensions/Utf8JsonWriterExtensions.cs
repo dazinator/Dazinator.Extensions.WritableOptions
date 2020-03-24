@@ -4,7 +4,7 @@ namespace System.Text.Json
 {
     public static class Utf8JsonWriterExtensions
     {
-        public static void WriteJsonWithModifiedSection<TObject>(this Utf8JsonWriter writer, Utf8JsonReader reader, string sectionPath, TObject newValue, JsonSerializerOptions options = default)
+        public static void WriteJsonWithModifiedSection<TObject>(this Utf8JsonWriter writer, Utf8JsonReader reader, string sectionPath, TObject newValue, JsonSerializerOptions options)
         {
 
             var sectionSegments = sectionPath?.Split(':', StringSplitOptions.RemoveEmptyEntries);
@@ -125,7 +125,7 @@ namespace System.Text.Json
 
         }
 
-        public static void WriteJsonWithModifiedSection<TObject>(this Utf8JsonWriter writer, Utf8JsonStreamReader reader, string sectionPath, TObject newValue, JsonSerializerOptions options = default)
+        public static void WriteJsonWithModifiedSection<TObject>(this Utf8JsonWriter writer, Utf8JsonStreamReader reader, string sectionPath, TObject newValue, JsonSerializerOptions options)
         {
 
             var sectionSegments = sectionPath?.Split(':', StringSplitOptions.RemoveEmptyEntries);

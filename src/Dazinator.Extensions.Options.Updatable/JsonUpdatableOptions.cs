@@ -8,68 +8,83 @@ namespace Dazinator.Extensions.Options.Updatable
     public class JsonUpdatableOptions<TOptions> : IUpdatableOptions<TOptions>
         where TOptions : class, new()
     {
-        private readonly IOptionsMonitor<TOptions> _monitor;
+        // ##############################################################################################################################
+        // Properties
+        // ##############################################################################################################################
 
-        // private IOptionsSnapshot<TOptions> _options;
-        private readonly IJsonStreamProvider<TOptions> _jsonFileStreamProvider;
-       // private readonly IOptionsMonitorCache<TOptions> _cache;
-        private readonly string _sectionName;
-        private readonly bool _leaveOpen;
-        private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
+        #region Properties
 
-        public TOptions Value => _monitor.CurrentValue;
+        // ##########################################################################################
+        // Public Properties
+        // ##########################################################################################
 
-        public TOptions Get(string name) => _monitor.Get(name);
+        public TOptions Value => _Monitor.CurrentValue;
+
+        public TOptions Get(string name) => _Monitor.Get(name);
+
+        // ##########################################################################################
+        // Private Properties
+        // ##########################################################################################
+
+        private readonly IOptionsMonitor<TOptions> _Monitor;
+
+        private readonly IJsonStreamProvider<TOptions> _JsonFileStreamProvider;
+        private readonly string _SectionName;
+        private readonly JsonSerializerOptions _JsonSerializerOptions;
+
+        #endregion
+
+        // ##############################################################################################################################
+        // Constructor
+        // ##############################################################################################################################
+
+        #region Constructor
 
         public JsonUpdatableOptions(
             IOptionsMonitor<TOptions> monitor,
             IJsonStreamProvider<TOptions> jsonFileStreamProvider,
             string sectionName,
-            bool leaveOpen = false)
+            JsonSerializerOptions jsonSerializerOptions)
         {
-            _monitor = monitor;
-            _jsonFileStreamProvider = jsonFileStreamProvider;
-            _sectionName = sectionName;
-            _leaveOpen = leaveOpen;
+            _Monitor = monitor;
+            _JsonFileStreamProvider = jsonFileStreamProvider;
+            _SectionName = sectionName;
+            _JsonSerializerOptions = jsonSerializerOptions;
         }
+
+        #endregion
+
+        // ##############################################################################################################################
+        // public methods
+        // ##############################################################################################################################
+
+        #region public methods
 
         public void Update(Action<TOptions> makeChanges, string namedOption = null)
         {
-
             using (var memStream = new MemoryStream())
             {
-                var optionValue =   string.IsNullOrWhiteSpace(namedOption) ? _monitor.CurrentValue : _monitor.Get(namedOption);
+                var optionValue =   string.IsNullOrWhiteSpace(namedOption) ? _Monitor.CurrentValue : _Monitor.Get(namedOption);
                 makeChanges(optionValue);
 
-                using (var writer = new Utf8JsonWriter(memStream))
+                using (var writer = new Utf8JsonWriter(memStream, _JsonSerializerOptions.ToJsonWriterOptions()))
                 {
-                    using (var readStream = _jsonFileStreamProvider.OpenReadStream())
+                    using (var readStream = _JsonFileStreamProvider.OpenReadStream())
                     {
                         var reader = new Utf8JsonStreamReader(readStream, 1024);
-                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, _defaultSerializerOptions);
+                        writer.WriteJsonWithModifiedSection(reader, _SectionName, optionValue, _JsonSerializerOptions);
                     }
                 }
                 memStream.Position = 0;
-                var writeStream = _jsonFileStreamProvider.OpenWriteStream();
-                if (_leaveOpen)
+                var writeStream = _JsonFileStreamProvider.OpenWriteStream();
+                using (writeStream)
                 {
                     memStream.CopyTo(writeStream);
                 }
-                else
-                {
-                    using (writeStream)
-                    {
-                        memStream.CopyTo(writeStream);
-                    }
-                }
-
-
-                //var name = namedOption ?? Microsoft.Extensions.Options.Options.DefaultName;
-                //_cache.TryRemove(name);
-                //_cache.TryAdd(name, optionValue);
-
             }
-        }      
+        }  
+
+        #endregion
     }
 }
 
