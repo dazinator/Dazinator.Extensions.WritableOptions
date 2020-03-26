@@ -41,7 +41,11 @@ namespace Dazinator.Extensions.Options.Updatable
                 var optionValue =   string.IsNullOrWhiteSpace(namedOption) ? _monitor.CurrentValue : _monitor.Get(namedOption);
                 makeChanges(optionValue);
 
-                using (var writer = new Utf8JsonWriter(memStream))
+                var jsonWriterOptions = new JsonWriterOptions();
+                var serialisationOptions = _defaultSerializerOptions; // TODO: allow default to be overriden
+                jsonWriterOptions.Indented = serialisationOptions.WriteIndented;
+
+                using (var writer = new Utf8JsonWriter(memStream, jsonWriterOptions))
                 {
                     using (var readStream = _jsonFileStreamProvider.OpenReadStream())
                     {
