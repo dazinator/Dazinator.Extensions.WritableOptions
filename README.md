@@ -81,9 +81,13 @@ public class SomeController
 }
 ```
 
-Note that when you call `services.ConfigureJsonUpdatableOptions<TOptions>()` or any of it's overloads,
- it will internally call `services.Configure<TOptions>(configuration);` on the `IConfiguration`, or `IConfigurationSection` you provide. This means
- your Options class is set up with the options system, so you can also use it normally in cases where you don't need to update it, by injecting the normal `IOptionsSnapshot<TOptions>' etc.
+Note: There are also overloads at both levels to allow you pass in your own `JsonSerializerOptions` so you can control how stuff is written to the file - e.g things like indentation, and null value handling etc.
+
+Note that when you call any of the `services.ConfigureJsonUpdatableOptions<TOptions>()` or any of it's overloads,
+ it will internally also call `services.Configure<TOptions>(configuration);` on the `IConfiguration`, or `IConfigurationSection` that you provide. 
+ This means your Options class is set up with the options system, so you can also use it normally in cases where you don't need to update it, by injecting the normal `IOptionsSnapshot<TOptions>' etc.
+
+ If you want to do your own Options registration - i.e using `.AddOptions` or calling `Configure<TOptions>()` yourself, then don't use `ConfigureJsonUpdatableOptions` use `AddJsonUpdatableOptions` as that method will only add services needed for updating options and it won't also try to configure the TOptions for you with the options / configuration system - it will assume you have already done that.
 
  ## Updating named options
 
@@ -104,15 +108,10 @@ Note that when you call `services.ConfigureJsonUpdatableOptions<TOptions>()` or 
 
 ## Notes
 
-In `startup.cs` - when you call `services.ConfigureJsonUpdatableOptions<TOptions>()` the arguments you provide help specify the location within the JSON file
+If you don't specify a `sectionPath` (or IConfigurationSection) then the root element in the JSON file can be overwritten by an update - if you are using only one file per options class then this is ok,
+otherwise if you are updating multiple options against the same file, you will need to seperate them into sections and use sectionPath's per options class.'
 
-you to bind your options class - in this case `TestOptions` to the relevent section of the JSON file.
-There are overloads so that you can pass in a `ConfigurationSection` directly if you already have the section handy.
-`foo:bar` is the `sectionPath` for the location within the JSON file what will be updated when you save changes to the options.
-If you don't specify a `sectionPath` then the root element in the JSON file will be overwritten - if you are using only one file per options class then this is ok,
-otherwise you will need to seperate them into sections and use sectionPath's per options class.'
+Be careful not to do simultaneous updates. Updates will read and write to a file - if two or more threads try to update the same file at the same time then you may get issues (I haven't tested exactly what happens but assume the usual type of errors).
 
-You need to provide factory methods responsible for returning the `Stream`s used for reading and writing the json file.
-It is necessary to read the JSON file prior to updating it, because its contents must be preserved - only the section relevent to the options class will be updated. To do this, it must read through the JSON file stream, building up the JSON structure in memory, until it finds the section that needs to be updated. If the section is missing it will be added.
-
-
+An update will actually read the JSON file into a memory stream prior to updating it in memory, and then writing the fully modified stream back to the file overwriting its previous contents.
+If the section corresponding to the options class is missing it will be added.
