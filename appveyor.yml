@@ -1,5 +1,5 @@
 skip_tags: true
-image: Visual Studio 2019 Preview
+image: Visual Studio 2019
 
 install:
   - cmd: choco install gitversion.portable --version 4.0.0 -y
