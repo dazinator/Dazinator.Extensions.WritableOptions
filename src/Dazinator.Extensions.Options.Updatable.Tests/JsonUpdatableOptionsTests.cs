@@ -84,10 +84,8 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
 
         }
 
-        [Theory]
-        [InlineData(@"")]
-        [InlineData(@"TestPath:Foo")]
-        public void Can_Update_Options_Custom_SerialisationOptions(string sectionPath)
+        [Fact()]
+        public void Can_Update_Options_Custom_SerialisationOptions()
         {
 
             var inMemoryFileProvider = new InMemoryFileProvider();
@@ -103,7 +101,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             var configBuilder = new ConfigurationBuilder();
             // Add some default settings
             var configSettings = new Dictionary<string, string>();
-          
+            var sectionPath = @"TestPath:Foo";
             configSettings.Add($"{sectionPath}:Enabled".TrimStart(':'), "True");
             configSettings.Add($"{sectionPath}:SomeInt".TrimStart(':'), "73");
             configBuilder.AddInMemoryCollection(configSettings);
@@ -142,7 +140,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
             var newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
             Assert.Null(newOptions.Value.SomeDecimal);
 
-            var expectedJson = "{\r\n  \"Enabled\": true,\r\n  \"SomeInt\": 73,\r\n  \"SomeDecimal\": null\r\n}";
+            var expectedJson = "{\r\n  \"TestPath\": {\r\n    \"Foo\": {\r\n      \"Enabled\": true,\r\n      \"SomeInt\": 73,\r\n      \"SomeDecimal\": null\r\n    }\r\n  }\r\n}";
             Assert.Equal(expectedJson, modifiedContents);
 
         }

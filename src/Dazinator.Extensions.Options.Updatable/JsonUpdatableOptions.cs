@@ -34,23 +34,21 @@ namespace Dazinator.Extensions.Options.Updatable
             _leaveOpen = leaveOpen;
         }
 
-        public void Update(Action<TOptions> makeChanges, string namedOption = null, JsonSerializerOptions serialiserOptions = null)
+        public void Update(Action<TOptions> makeChanges, string namedOption = null)
         {
             using (var memStream = new MemoryStream())
             {
                 var optionValue = string.IsNullOrWhiteSpace(namedOption) ? _monitor.CurrentValue : _monitor.Get(namedOption);
                 makeChanges(optionValue);
 
-                var jsonWriterOptions = new JsonWriterOptions();
-                var serialserOptions = serialiserOptions ?? _serializerOptions;
-                jsonWriterOptions.Indented = serialserOptions.WriteIndented;
+                var jsonWriterOptions = _serializerOptions.ToJsonWriterOptions();
 
                 using (var writer = new Utf8JsonWriter(memStream, jsonWriterOptions))
                 {
                     using (var readStream = _jsonFileStreamProvider.OpenReadStream())
                     {
                         var reader = new Utf8JsonStreamReader(readStream, 1024);
-                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, serialserOptions);
+                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, _serializerOptions);
                     }
                 }
                 memStream.Position = 0;

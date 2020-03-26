@@ -63,6 +63,8 @@ However if you just want to use System.IO you can use:
 	 
 ```
 
+Note: There are also overloads to allow you pass in your own `JsonSerializerOptions` so you can control how stuff is written to the file - e.g things like indentation, and null value handling etc.
+
 You can now update options by injecting `IOptionsUpdater<TestOptions>` like so:
 
 
@@ -81,7 +83,6 @@ public class SomeController
 }
 ```
 
-Note: There are also overloads at both levels to allow you pass in your own `JsonSerializerOptions` so you can control how stuff is written to the file - e.g things like indentation, and null value handling etc.
 
 Note that when you call any of the `services.ConfigureJsonUpdatableOptions<TOptions>()` or any of it's overloads,
  it will internally also call `services.Configure<TOptions>(configuration);` on the `IConfiguration`, or `IConfigurationSection` that you provide. 
