@@ -84,6 +84,69 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
 
         }
 
+        [Theory]
+        [InlineData(@"")]
+        [InlineData(@"TestPath:Foo")]
+        public void Can_Update_Options_Custom_SerialisationOptions(string sectionPath)
+        {
+
+            var inMemoryFileProvider = new InMemoryFileProvider();
+            var readBytes = Encoding.UTF8.GetBytes("{}");
+            var readStream = new MemoryStream(readBytes);
+            readStream.Position = 0;
+            inMemoryFileProvider.Directory.AddFile("/", new MemoryStreamFileInfo(readStream, Encoding.UTF8, "appsettings.json"));
+
+
+            var services = new ServiceCollection();
+            services.AddOptions();
+
+            var configBuilder = new ConfigurationBuilder();
+            // Add some default settings
+            var configSettings = new Dictionary<string, string>();
+          
+            configSettings.Add($"{sectionPath}:Enabled".TrimStart(':'), "True");
+            configSettings.Add($"{sectionPath}:SomeInt".TrimStart(':'), "73");
+            configBuilder.AddInMemoryCollection(configSettings);
+
+            // Add the json file (in memory) - this is the file that gets modified.
+            configBuilder.AddJsonFile(inMemoryFileProvider, "appsettings.json", false, true);
+            var config = configBuilder.Build();
+
+            var customSerialisationOptions = new JsonSerializerOptions() { WriteIndented = true, IgnoreNullValues = false };
+            var writeStream = new MemoryStream();
+            services.ConfigureJsonUpdatableOptions<TestOptions>(config, sectionPath, () => readStream, () =>
+            {
+                var newFile = new MemoryStreamFileInfo(writeStream, Encoding.UTF8, "appsettings.json");
+                inMemoryFileProvider.Directory.AddOrUpdateFile("/", newFile);
+                return writeStream;
+            }, customSerialisationOptions, leaveOpen: true);
+
+            var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
+
+            // var existingOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
+            var writableOptions = scope.ServiceProvider.GetRequiredService<IUpdatableOptions<TestOptions>>();
+            writableOptions.Update((options) =>
+            {
+                Assert.Null(options.SomeDecimal);
+                Assert.Equal(73, options.SomeInt);
+                Assert.True(options.Enabled);
+
+                options.SomeDecimal = null;
+            });
+
+            var modifiedFile = inMemoryFileProvider.Directory.GetFile("/appsettings.json");
+            var modifiedContents = Dazinator.AspNet.Extensions.FileProviders.IFileProviderExtensions.ReadAllContent(modifiedFile.FileInfo);
+            Console.WriteLine(modifiedContents);
+
+            var newOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<TestOptions>>();
+            Assert.Null(newOptions.Value.SomeDecimal);
+
+            var expectedJson = "{\r\n  \"Enabled\": true,\r\n  \"SomeInt\": 73,\r\n  \"SomeDecimal\": null\r\n}";
+            Assert.Equal(expectedJson, modifiedContents);
+
+        }
+
         [Fact()]
         public void Updating_Existing_Options_Truncates_File_Correctly()
         {

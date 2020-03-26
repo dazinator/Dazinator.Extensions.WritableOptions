@@ -10,12 +10,11 @@ namespace Dazinator.Extensions.Options.Updatable
     {
         private readonly IOptionsMonitor<TOptions> _monitor;
 
-        // private IOptionsSnapshot<TOptions> _options;
         private readonly IJsonStreamProvider<TOptions> _jsonFileStreamProvider;
-       // private readonly IOptionsMonitorCache<TOptions> _cache;
         private readonly string _sectionName;
         private readonly bool _leaveOpen;
         private readonly static JsonSerializerOptions _defaultSerializerOptions = new JsonSerializerOptions() { IgnoreNullValues = true, WriteIndented = true };
+        private readonly JsonSerializerOptions _serializerOptions;
 
         public TOptions Value => _monitor.CurrentValue;
 
@@ -25,32 +24,33 @@ namespace Dazinator.Extensions.Options.Updatable
             IOptionsMonitor<TOptions> monitor,
             IJsonStreamProvider<TOptions> jsonFileStreamProvider,
             string sectionName,
+            JsonSerializerOptions serializerOptions = null,
             bool leaveOpen = false)
         {
             _monitor = monitor;
             _jsonFileStreamProvider = jsonFileStreamProvider;
             _sectionName = sectionName;
+            _serializerOptions = serializerOptions ?? _defaultSerializerOptions;
             _leaveOpen = leaveOpen;
         }
 
-        public void Update(Action<TOptions> makeChanges, string namedOption = null)
+        public void Update(Action<TOptions> makeChanges, string namedOption = null, JsonSerializerOptions serialiserOptions = null)
         {
-
             using (var memStream = new MemoryStream())
             {
-                var optionValue =   string.IsNullOrWhiteSpace(namedOption) ? _monitor.CurrentValue : _monitor.Get(namedOption);
+                var optionValue = string.IsNullOrWhiteSpace(namedOption) ? _monitor.CurrentValue : _monitor.Get(namedOption);
                 makeChanges(optionValue);
 
                 var jsonWriterOptions = new JsonWriterOptions();
-                var serialisationOptions = _defaultSerializerOptions; // TODO: allow default to be overriden
-                jsonWriterOptions.Indented = serialisationOptions.WriteIndented;
+                var serialserOptions = serialiserOptions ?? _serializerOptions;
+                jsonWriterOptions.Indented = serialserOptions.WriteIndented;
 
                 using (var writer = new Utf8JsonWriter(memStream, jsonWriterOptions))
                 {
                     using (var readStream = _jsonFileStreamProvider.OpenReadStream())
                     {
                         var reader = new Utf8JsonStreamReader(readStream, 1024);
-                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, _defaultSerializerOptions);
+                        writer.WriteJsonWithModifiedSection<TOptions>(reader, _sectionName, optionValue, serialserOptions);
                     }
                 }
                 memStream.Position = 0;
@@ -73,7 +73,7 @@ namespace Dazinator.Extensions.Options.Updatable
                 //_cache.TryAdd(name, optionValue);
 
             }
-        }      
+        }
     }
 }
 
