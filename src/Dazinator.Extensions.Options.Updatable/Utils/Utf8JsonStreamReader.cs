@@ -223,6 +223,8 @@ namespace System.Text.Json
         public bool TryGetUInt64(out ulong value) => _jsonReader.TryGetUInt64(out value);
         public void Skip() => _jsonReader.Skip();
 
+        public bool TrySkip() => _jsonReader.TrySkip();
+
         private sealed class SequenceSegment : ReadOnlySequenceSegment<byte>, IDisposable
         {
             internal IMemoryOwner<byte> Buffer { get; }
