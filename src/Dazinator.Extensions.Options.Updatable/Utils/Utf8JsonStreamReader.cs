@@ -221,9 +221,13 @@ namespace System.Text.Json
         public bool TryGetUInt16(out ushort value) => _jsonReader.TryGetUInt16(out value);
         public bool TryGetUInt32(out uint value) => _jsonReader.TryGetUInt32(out value);
         public bool TryGetUInt64(out ulong value) => _jsonReader.TryGetUInt64(out value);
-        public void Skip() => _jsonReader.Skip();
-
-        public bool TrySkip() => _jsonReader.TrySkip();
+        public void Skip() 
+        {         
+            while (!_jsonReader.TrySkip())
+            {
+                MoveNext();
+            }
+        }      
 
         private sealed class SequenceSegment : ReadOnlySequenceSegment<byte>, IDisposable
         {

@@ -192,11 +192,7 @@ namespace System.Text.Json
                                 if (sectionQueue.Count == 0)
                                 {
                                     // This is the destination section path where we need to append our updated json
-                                    reader.TrySkip();
-                                    //if (!reader.TrySkip())
-                                    //{
-                                    //    throw new InvalidOperationException("unable to skip");
-                                    //}
+                                    reader.Skip();
                                     JsonSerializer.Serialize<TObject>(writer, newValue, options);
                                 }
                                 break;

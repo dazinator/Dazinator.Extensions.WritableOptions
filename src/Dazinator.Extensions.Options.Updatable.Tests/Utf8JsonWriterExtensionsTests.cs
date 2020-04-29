@@ -52,7 +52,7 @@ namespace Dazinator.Extensions.Options.Updatable.Tests
         public void Can_RoundTrip_Escape_Sequences()
         {
 
-            var expected = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=hub2;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+            var expected = "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=foo;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
             var testObject = new TestEscapeSequenceOptions() { ConnectionString = expected };
             var options = new JsonSerializerOptions() { IgnoreNullValues = true };
             var expectedJson = System.Text.Json.JsonSerializer.Serialize<TestEscapeSequenceOptions>(testObject, options);
