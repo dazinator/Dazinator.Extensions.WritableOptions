@@ -1,3 +1,8 @@
+## ARCHIVED
+
+This project was experimental (mainly so I could understand the options system internals) and has been discontnued.
+I wouldn't reccommend using it in production apps, as the json writing seems a bit flaky (using a lot of custom code to get system.text.json try and update a section within a file stream), and also the way options instances are potentially shared in memory can give misleading results. It seems the Options system in asp.net core was mainly designed for options instances to be readonly, or updated in one direction (from IConfiguration).
+
 ## Dazinator Extensions Options
 
 This repo produces the following nuget packages:
